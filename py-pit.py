@@ -20,8 +20,8 @@ def handle_ref_change(ref, old_val, new_val):
 
 def fake_input():
     while True:
-        time.sleep(3)
-        print("Pushing button")
+        print("Waiting for Arduino line print...")
+        arduino.s.readline()
         refs.send_command("laminar/B738/autopilot/hdg_sel_press")
 
 

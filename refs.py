@@ -27,6 +27,21 @@ def stop_connection():
     request(0, [registered_refs[index][0] for index in registered_refs.keys()])
 
 
+def send(ref, value):
+    global sock
+
+    packet = struct.pack("<5sf500s", b"DREF\x00", value, ref.encode())
+    sock.sendto(packet, (beacon[0], beacon[1]))
+
+
+def send_command(cmd):
+    global sock
+
+    packet = b"CMND\x00" + cmd.encode() + b"\x00"
+    sock.sendto(packet, (beacon[0], beacon[1]))
+    print(packet)
+
+
 def request(freq, refs):
     global next_ref_index, sock
 

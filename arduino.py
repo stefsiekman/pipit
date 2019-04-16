@@ -8,6 +8,7 @@ def setup():
 
     s = serial.Serial(port="/dev/cu.usbmodem143101", baudrate=9600)
 
+
 def set_led(on):
     global s
 

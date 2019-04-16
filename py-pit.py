@@ -2,6 +2,7 @@ import beacon
 import refs
 import threading
 import queue
+import arduino
 
 
 ref_queue = queue.Queue()
@@ -15,10 +16,13 @@ def handle_ref_change(ref, old_val, new_val):
 
 
 if __name__ == "__main__":
+    print("Connecting to Arduino...")
+    arduino.setup()
+
     print("Trying to locate the X-Plane installation running")
     beacon_msg = beacon.listen()
     refs.setup_installation(beacon_msg)
-    refs.request(5, ["laminar/B738/autopilot/hdg_sel_status"])
+    refs.request(15, ["laminar/B738/autopilot/hdg_sel_status"])
     refs.set_handler(handle_ref_change)
 
     ref_thread = threading.Thread(target=refs.listen)
@@ -28,6 +32,7 @@ if __name__ == "__main__":
     while True:
         ref, vold, vnew = ref_queue.get()
         print(f"Ref change {ref}:\t{vold} -> {vnew}")
+        arduino.set_led(vnew == 1)
 
 
 

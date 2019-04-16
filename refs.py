@@ -6,14 +6,25 @@ registered_refs = {}
 next_ref_index = 1
 beacon = None
 handler = None
+running = False
 
 
 def setup_installation(beacon_info):
-    global beacon, sock
+    global beacon, sock, running
 
     print(f"Setting up REFS communication for {beacon_info[2]}")
     beacon = beacon_info
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    running = True
+
+
+def stop_connection():
+    global running, registered_refs
+
+    running = False
+
+    # Stop requesting the refs
+    request(0, [registered_refs[index][0] for index in registered_refs.keys()])
 
 
 def request(freq, refs):
@@ -24,10 +35,12 @@ def request(freq, refs):
 
     for ref in refs:
         # Create the packet for the RREF
-        registered_refs[next_ref_index] = ref, None
-        packet = struct.pack("<5sii400s", b"RREF\x00", freq, next_ref_index,
+        if freq:
+            registered_refs[next_ref_index] = ref, None
+            next_ref_index += 1
+        send_index = next_ref_index - 1 if freq else 0
+        packet = struct.pack("<5sii400s", b"RREF\x00", freq, send_index,
                              ref.encode())
-        next_ref_index += 1
 
         # Send the request
         sock.sendto(packet, (beacon[0], beacon[1]))
@@ -37,6 +50,13 @@ def set_handler(new_handler):
     global handler
 
     handler = new_handler
+
+
+def listen():
+    global running
+
+    while running:
+        receive()
 
 
 def receive():

@@ -1,5 +1,6 @@
 import beacon
 import refs
+import threading
 
 
 def handle_ref_change(ref, old_val, new_val):
@@ -13,5 +14,13 @@ if __name__ == "__main__":
     refs.request(5, ["laminar/B738/autopilot/hdg_sel_status"])
     refs.set_handler(handle_ref_change)
 
-    while True:
-        refs.receive()
+    ref_thread = threading.Thread(target=refs.listen)
+    ref_thread.start()
+
+    input()
+    print("Stopping...")
+
+    refs.stop_connection()
+    ref_thread.join()
+
+

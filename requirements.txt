@@ -1,0 +1,2 @@
+RPLCD==1.2.2
+RPi.GPIO

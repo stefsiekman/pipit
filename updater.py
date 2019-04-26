@@ -65,7 +65,12 @@ def update_required_zip():
     log(f"Latest release: {latest_release[0]}")
 
     if version_info and KEY_INSTALLED in version_info:
-        log("Current version is")
+        installed_version = version_info[KEY_INSTALLED]
+        log(f"Current version is {installed_version}")
+
+        if installed_version == latest_release[0]:
+            log("Already on latest version")
+            return
 
         # TODO: check if the version info indicates a >= version than release
         # optionally return None
@@ -113,7 +118,12 @@ def download_zip(url):
 
 
 def download_update():
-    release_version, release_zip = update_required_zip()
+    update_required_info = update_required_zip()
+
+    if not update_required_info:
+        return None
+
+    release_version, release_zip = update_required_info
 
     if release_zip is None:
         log("No update will be installed")
@@ -133,7 +143,11 @@ def move_download(from_path, to_path):
 
 def install_update():
     # Install update
-    temp_dir, code_dir, new_version = download_update()
+    downloaded_info = download_update()
+    if not downloaded_info:
+        return
+
+    temp_dir, code_dir, new_version = downloaded_info
     prog_dir = os.path.dirname(os.path.abspath(__file__))
     log("Moving files...")
     move_download(code_dir, prog_dir)

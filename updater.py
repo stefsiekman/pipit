@@ -9,7 +9,11 @@ import shutil
 
 LATEST_RELEASE_URL = \
     "https://api.github.com/repos/stefsiekman/pipit/releases/latest"
-INFO_FILE = os.path.join(os.path.dirname(__file__), "version-info.json")
+INFO_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "version-info.json")
+
+KEY_ACTIVE_TEMP_DIR = "active_temp_dir"
+KEY_INSTALLED = "installed"
 
 
 def log(msg):
@@ -43,7 +47,7 @@ def write_version_info(info):
 
 def update_version_info_key(key, value):
     old_info = read_version_info() or dict()
-    old_value = old_info[key]
+    old_value = old_info[key] if key in old_info else None
     old_info[key] = value
     write_version_info(old_info)
     return old_value
@@ -60,7 +64,7 @@ def update_required_zip():
 
     log(f"Latest release: {latest_release[0]}")
 
-    if version_info and "installed" in version_info:
+    if version_info and KEY_INSTALLED in version_info:
         log("Current version is")
 
         # TODO: check if the version info indicates a >= version than release
@@ -82,7 +86,7 @@ def remove_temp_dir(path):
 
 def activate_new_temp_dir():
     path = tempfile.mkdtemp()
-    old_temp = update_version_info_key("active_temp_dir", path)
+    old_temp = update_version_info_key(KEY_ACTIVE_TEMP_DIR, path)
 
     if old_temp:
         remove_temp_dir(old_temp)
@@ -119,13 +123,28 @@ def download_update():
 
     temp_dir, code_dir = download_zip(release_zip)
     log(f"Downloaded to {code_dir}")
-    return temp_dir, code_dir
+    return temp_dir, code_dir, release_version
+
+
+def move_download(from_path, to_path):
+    for file in os.listdir(from_path):
+        shutil.move(os.path.join(from_path, file), os.path.join(to_path, file))
 
 
 def install_update():
-    temp_dir, code_dir = download_update()
-    prog_dir = os.path.dirname(__file__)
-    log(f"Will move {code_dir} -> {prog_dir}")
+    # Install update
+    temp_dir, code_dir, new_version = download_update()
+    prog_dir = os.path.dirname(os.path.abspath(__file__))
+    log("Moving files...")
+    move_download(code_dir, prog_dir)
+
+    # Remove the temp dir
+    remove_temp_dir(temp_dir)
+    update_version_info_key(KEY_ACTIVE_TEMP_DIR, None)
+
+    # Update installed version
+    update_version_info_key(KEY_INSTALLED, new_version)
+    log(f"Updated to {new_version}")
 
 
 if __name__ == "__main__":

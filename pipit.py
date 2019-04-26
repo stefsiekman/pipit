@@ -3,6 +3,7 @@ from RPLCD.i2c import CharLCD
 import RPi.GPIO as GPIO
 
 import buttons
+import refs
 import rotary
 import beacon
 
@@ -48,6 +49,8 @@ def connect_xplane():
         lcd.cursor_pos = 1, 7
         lcd.write_string("OK")
 
+    refs.setup_installation(beacon_info)
+
     time.sleep(0.75)
     lcd.clear()
     lcd.cursor_pos = 0, 4
@@ -58,13 +61,36 @@ def connect_xplane():
     time.sleep(2)
 
 
+def ref_changed(ref, old_val, new_val):
+    if ref == refs.REF_AIRSPEED:
+        lcd.cursor_pos = 0, 5
+        lcd.write_string(f"{int(new_val):3d}")
+    pass
+
+
+def setup_refs():
+    refs.set_handler(ref_changed)
+    refs.request(30, [
+        refs.REF_AIRSPEED
+    ])
+
+    lcd.clear()
+    lcd.cursor_pos = 0, 0
+    lcd.write_string("AIS")
+
+    refs.start_thread()
+
+
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BCM)
     buttons.setup()
     rotary.setup()
 
     display_welcome()
-
     connect_xplane()
+    setup_refs()
+
     input("Press enter to quit\n")
+    refs.stop_connection()
+    lcd.clear()
     GPIO.cleanup()

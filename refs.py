@@ -1,5 +1,8 @@
 import socket
+import threading
 import struct
+
+REF_AIRSPEED = "sim/cockpit2/autopilot/airspeed_dial_kts_mach"
 
 sock = None
 registered_refs = {}
@@ -7,6 +10,7 @@ next_ref_index = 1
 beacon = None
 handler = None
 running = False
+thread = None
 
 
 def setup_installation(beacon_info):
@@ -18,13 +22,22 @@ def setup_installation(beacon_info):
     running = True
 
 
+def start_thread():
+    global thread
+
+    thread = threading.Thread(target=listen)
+    thread.start()
+
+
 def stop_connection():
-    global running, registered_refs
+    global running, registered_refs, thread
 
     running = False
 
     # Stop requesting the refs
     request(0, [registered_refs[index][0] for index in registered_refs.keys()])
+
+    thread.join()
 
 
 def send(ref, value):

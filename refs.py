@@ -3,6 +3,8 @@ import threading
 import struct
 
 REF_AIRSPEED = "sim/cockpit2/autopilot/airspeed_dial_kts_mach"
+CMD_AIRSPEED_UP = "sim/autopilot/airspeed_up"
+CMD_AIRSPEED_DOWN = "sim/autopilot/airspeed_down"
 
 sock = None
 registered_refs = {}
@@ -52,7 +54,6 @@ def send_command(cmd):
 
     packet = b"CMND\x00" + cmd.encode() + b"\x00"
     sock.sendto(packet, (beacon[0], beacon[1]))
-    print(packet)
 
 
 def request(freq, refs):

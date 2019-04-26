@@ -81,10 +81,16 @@ def setup_refs():
     refs.start_thread()
 
 
+def rotary_turned(encoder, direction):
+    if encoder == 0:
+        refs.send_command(
+            refs.CMD_AIRSPEED_UP if direction > 0 else refs.CMD_AIRSPEED_DOWN)
+
+
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BCM)
     buttons.setup()
-    rotary.setup()
+    rotary.setup(rotary_turned)
 
     display_welcome()
     connect_xplane()

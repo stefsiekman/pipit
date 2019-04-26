@@ -20,7 +20,12 @@ def listen(timeout=3):
     print(f"Listening for beacon for {timeout} sec...")
     start_time = time.time()
     sock.settimeout(timeout)
-    (data, sender) = sock.recvfrom(1000)
+
+    try:
+        (data, sender) = sock.recvfrom(1000)
+    except OSError:
+        return None
+
     print(f" ... {round(time.time() - start_time, 1)} sec")
 
     if data or sender:

@@ -47,11 +47,15 @@ def setup():
 
 def flash():
     # Blink all in sequence
+    leds_blinked = 0
     for pin in leds.values():
         GPIO.output(pin, True)
-        time.sleep(0.15)
-        GPIO.output(pin, False)
         time.sleep(0.05)
+        GPIO.output(pin, False)
+
+        leds_blinked += 1
+        if leds_blinked != len(leds):
+            time.sleep(0.05)
 
     # Flash all at once
     all_pins = tuple(leds.values())

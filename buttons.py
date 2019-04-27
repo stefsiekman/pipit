@@ -30,14 +30,23 @@ buttons = {
     "W": 19
 }
 
+handler = None
+
 
 def process_button_pressed(channel):
+    if handler is None:
+        return
+
     for button, pin in buttons.items():
         if pin == channel:
-            print(f"Button {button} pressed")
+            handler(button)
 
 
-def setup():
+def setup(the_handler):
+    global handler
+
+    handler = the_handler
+    
     GPIO.setup(tuple(leds.values()), GPIO.OUT)
     GPIO.setup(tuple(buttons.values()), GPIO.IN, pull_up_down=GPIO.PUD_UP)
     for pin in buttons.values():
@@ -64,3 +73,6 @@ def flash():
     GPIO.output(all_pins, False)
 
 
+def clear():
+    for pin in leds.values():
+        GPIO.output(pin, False)

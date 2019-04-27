@@ -5,6 +5,15 @@ import struct
 REF_AIRSPEED = "sim/cockpit2/autopilot/airspeed_dial_kts_mach"
 CMD_AIRSPEED_UP = "sim/autopilot/airspeed_up"
 CMD_AIRSPEED_DOWN = "sim/autopilot/airspeed_down"
+REF_HEADING = "laminar/B738/autopilot/mcp_hdg_dial"
+CMD_HEADING_UP = "sim/autopilot/heading_up"
+CMD_HEADING_DOWN = "sim/autopilot/heading_down"
+REF_STATUS_LNAV = "laminar/B738/autopilot/lnav_status"
+CMD_PRESS_LNAV = "laminar/B738/autopilot/lnav_press"
+REF_STATUS_VNAV = "laminar/B738/autopilot/vnav_status"
+CMD_PRESS_VNAV = "laminar/B738/autopilot/vnav_press"
+REF_STATUS_HDG_SEL = "laminar/B738/autopilot/hdg_sel_status"
+CMD_PRESS_HDG_SEL = "laminar/B738/autopilot/hdg_sel_press"
 
 sock = None
 registered_refs = {}

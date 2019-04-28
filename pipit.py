@@ -11,14 +11,15 @@ import states
 
 lcd = CharLCD("PCF8574", 0x3f)
 
-led_map = {
-    refs.REF_STATUS_HDG_SEL: buttons.leds["F"]
-}
 
-states = [
-    states.SpeedHeadingState(lcd)
-]
-current_state_index = 0
+all_states = {
+    states.KEY_IAS_HDG: states.SpeedHeadingState(lcd)
+}
+current_state_key = states.KEY_IAS_HDG
+
+
+def current_state():
+    return all_states[current_state_key]
 
 
 def display_welcome():
@@ -74,14 +75,7 @@ def connect_xplane():
 
 
 def ref_changed(ref, old_val, new_val):
-    if ref == refs.REF_AIRSPEED:
-        lcd.cursor_pos = 0, 5
-        lcd.write_string(f"{int(new_val):03d}")
-    elif ref == refs.REF_HEADING:
-        lcd.cursor_pos = 1, 5
-        lcd.write_string(f"{int(new_val):03d}")
-    elif ref in led_map:
-        GPIO.output(led_map[ref], bool(new_val))
+    current_state().ref_changed(ref, new_val)
 
 
 def setup_refs():
@@ -94,16 +88,24 @@ def setup_refs():
         refs.REF_STATUS_VNAV,
     ])
 
-    states[current_state_index].init_display()
+    current_state().init_display()
     refs.start_thread()
 
 
+def delegate_input(source, value=None):
+    global current_state_key
+
+    new_state = current_state().input(source, value)
+    if new_state in all_states:
+        current_state_key = new_state
+
+
 def button_pressed(button):
-    states[current_state_index].input(button)
+    delegate_input(button)
 
 
 def rotary_turned(encoder, direction):
-    states[current_state_index].input("LR" if encoder == 0 else "RR", direction)
+    delegate_input("LR" if encoder == 0 else "RR", direction)
 
 
 if __name__ == "__main__":

@@ -40,18 +40,21 @@ class SpeedHeadingState(ScreenState):
 
     def init_display(self):
         self.lcd.clear()
-        self.lcd.cursor_pos = 0, 0
-        self.lcd.write_string("IAS")
-        self.lcd.cursor_pos = 1, 0
-        self.lcd.write_string("HDG")
+        self.lcd.cursor_pos = 0, 6
+        self.lcd.write_string("IAS / MACH")
+        self.lcd.cursor_pos = 1, 6
+        self.lcd.write_string("HEADING")
+
+        for ref in [refs.REF_AIRSPEED, refs.REF_HEADING]:
+            self.ref_changed(ref, refs.current_value(ref))
 
     def ref_changed(self, ref, new_val):
         if ref == refs.REF_AIRSPEED:
-            self.lcd.cursor_pos = 0, 5
-            self.lcd.write_string(f"{int(new_val):03d}")
+            self.lcd.cursor_pos = 0, 0
+            self.lcd.write_string(f"{int(new_val or 0):03d}")
         elif ref == refs.REF_HEADING:
-            self.lcd.cursor_pos = 1, 5
-            self.lcd.write_string(f"{int(new_val):03d}")
+            self.lcd.cursor_pos = 1, 0
+            self.lcd.write_string(f"{int(new_val or 0):03d}")
         elif ref in self.led_map:
             GPIO.output(self.led_map[ref], bool(new_val))
 
@@ -83,18 +86,25 @@ class AltitudeState(ScreenState):
         
     def init_display(self):
         self.lcd.clear()
-        self.lcd.cursor_pos = 0, 0
-        self.lcd.write_string("ALT")
-        self.lcd.cursor_pos = 1, 0
-        self.lcd.write_string("FPM")
+        self.lcd.cursor_pos = 0, 6
+        self.lcd.write_string("ALTITUDE")
+        self.lcd.cursor_pos = 1, 6
+        self.lcd.write_string("VERT SPEED")
+
+        for ref in [refs.REF_ALTITUDE, refs.REF_VERTICAL_SPEED]:
+            self.ref_changed(ref, refs.current_value(ref))
 
     def ref_changed(self, ref, new_val):
         if ref == refs.REF_ALTITUDE:
-            self.lcd.cursor_pos = 0, 5
-            self.lcd.write_string(f"{int(new_val):03d}")
+            self.lcd.cursor_pos = 0, 0
+            self.lcd.write_string(f"{int(new_val):5d}")
         elif ref == refs.REF_VERTICAL_SPEED:
-            self.lcd.cursor_pos = 1, 5
-            self.lcd.write_string(f"{int(new_val):03d}")
+            self.lcd.cursor_pos = 1, 0
+            if new_val != 0:
+                self.lcd.write_string("-" if new_val < 0 else "+")
+                self.lcd.write_string(f"{abs(int(new_val)):4d}")
+            else:
+                self.lcd.write_string("     ")
         elif ref in self.led_map:
             GPIO.output(self.led_map[ref], bool(new_val))
 

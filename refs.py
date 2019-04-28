@@ -139,3 +139,9 @@ def receive():
             registered_refs[index] = ref, value
             if handler:
                 handler(ref, old_value, value)
+
+
+def current_value(ref):
+    for saved_ref, value in registered_refs.values():
+        if saved_ref == ref:
+            return value

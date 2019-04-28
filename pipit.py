@@ -6,19 +6,19 @@ import buttons
 import refs
 import rotary
 import beacon
+import states
 
 
 lcd = CharLCD("PCF8574", 0x3f)
 
-button_map = {
-    "A": refs.CMD_PRESS_LNAV,
-    "B": refs.CMD_PRESS_VNAV,
-    "F": refs.CMD_PRESS_HDG_SEL,
-}
-
 led_map = {
     refs.REF_STATUS_HDG_SEL: buttons.leds["F"]
 }
+
+states = [
+    states.SpeedHeadingState(lcd)
+]
+current_state_index = 0
 
 
 def display_welcome():
@@ -53,7 +53,9 @@ def connect_xplane():
     if beacon_info is None:
         lcd.cursor_pos = 1, 5
         lcd.write_string("Failed")
+        time.sleep(1)
         GPIO.cleanup()
+        lcd.clear()
         exit(1)
     else:
         lcd.cursor_pos = 1, 7
@@ -84,7 +86,7 @@ def ref_changed(ref, old_val, new_val):
 
 def setup_refs():
     refs.set_handler(ref_changed)
-    refs.request(30, [
+    refs.request(15, [
         refs.REF_AIRSPEED,
         refs.REF_HEADING,
         refs.REF_STATUS_HDG_SEL,
@@ -92,27 +94,16 @@ def setup_refs():
         refs.REF_STATUS_VNAV,
     ])
 
-    lcd.clear()
-    lcd.cursor_pos = 0, 0
-    lcd.write_string("AIS")
-    lcd.cursor_pos = 1, 0
-    lcd.write_string("HDG")
-
+    states[current_state_index].init_display()
     refs.start_thread()
 
 
 def button_pressed(button):
-    if button in button_map:
-        refs.send_command(button_map[button])
+    states[current_state_index].input(button)
 
 
 def rotary_turned(encoder, direction):
-    if encoder == 0:
-        refs.send_command(
-            refs.CMD_AIRSPEED_UP if direction > 0 else refs.CMD_AIRSPEED_DOWN)
-    if encoder == 1:
-        refs.send_command(
-            refs.CMD_HEADING_UP if direction > 0 else refs.CMD_HEADING_DOWN)
+    states[current_state_index].input("LR" if encoder == 0 else "RR", direction)
 
 
 if __name__ == "__main__":

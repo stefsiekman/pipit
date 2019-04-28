@@ -53,6 +53,8 @@ def setup(the_handler):
         GPIO.add_event_detect(pin, GPIO.FALLING, process_button_pressed,
                               bouncetime=250)
 
+    clear()
+
 
 def flash():
     # Blink all in sequence

@@ -80,14 +80,7 @@ def ref_changed(ref, old_val, new_val):
 
 def setup_refs():
     refs.set_handler(ref_changed)
-    refs.request(15, [
-        refs.REF_AIRSPEED,
-        refs.REF_HEADING,
-        refs.REF_STATUS_HDG_SEL,
-        refs.REF_STATUS_LNAV,
-        refs.REF_STATUS_VNAV,
-    ])
-
+    refs.request_all()
     current_state().init_display()
     refs.start_thread()
 

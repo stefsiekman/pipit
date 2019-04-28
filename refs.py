@@ -84,6 +84,11 @@ def request(freq, refs):
         sock.sendto(packet, (beacon[0], beacon[1]))
 
 
+def request_all():
+    request(15, [ref for name, ref in globals().items()
+                 if name.startswith("REF_")])
+
+
 def set_handler(new_handler):
     global handler
 

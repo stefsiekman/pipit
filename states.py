@@ -60,11 +60,11 @@ class SpeedHeadingState(ScreenState):
 
     def input(self, source, val=None):
         if source == "LR":
-            refs.send_command(
-                refs.CMD_AIRSPEED_UP if val > 0 else refs.CMD_AIRSPEED_DOWN)
+            refs.send_command(refs.CMD_AIRSPEED_UP
+                              if val > 0 else refs.CMD_AIRSPEED_DOWN, True)
         elif source == "RR":
-            refs.send_command(
-                refs.CMD_HEADING_UP if val > 0 else refs.CMD_HEADING_DOWN)
+            refs.send_command(refs.CMD_HEADING_UP
+                              if val > 0 else refs.CMD_HEADING_DOWN, True)
         elif source in self.button_map:
             refs.send_command(self.button_map[source])
         elif source == "Y":
@@ -110,8 +110,8 @@ class AltitudeState(ScreenState):
 
     def input(self, source, val=None):
         if source == "LR":
-            refs.send_command(
-                refs.CMD_ALTITUDE_UP if val > 0 else refs.CMD_ALTITUDE_DOWN)
+            refs.send_command(refs.CMD_ALTITUDE_UP if val > 0 else
+                              refs.CMD_ALTITUDE_DOWN, True)
         elif source == "RR":
             refs.send_command(
                 refs.CMD_VERTICAL_SPEED_UP if val > 0 else

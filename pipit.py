@@ -104,6 +104,8 @@ def rotary_turned(encoder, direction):
 
 
 if __name__ == "__main__":
+    print("Welcome to PiPit")
+
     GPIO.setmode(GPIO.BCM)
     buttons.setup(button_pressed)
     rotary.setup(rotary_turned)

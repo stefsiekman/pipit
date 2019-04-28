@@ -1,4 +1,5 @@
 import socket
+import time
 import threading
 import struct
 
@@ -70,11 +71,22 @@ def send(ref, value):
     sock.sendto(packet, (beacon[0], beacon[1]))
 
 
-def send_command(cmd):
-    global sock
+last_command = None
+last_command_time = time.time()
+
+
+def send_command(cmd, fast_repeat=False):
+    global sock, last_command, last_command_time
+
+    now = time.time()
+    should_repeat = fast_repeat and last_command == cmd and \
+                    now - last_command_time < 0.100
+    last_command_time = now
+    last_command = cmd
 
     packet = b"CMND\x00" + cmd.encode() + b"\x00"
-    sock.sendto(packet, (beacon[0], beacon[1]))
+    for _ in range(5 if should_repeat else 1):
+        sock.sendto(packet, (beacon[0], beacon[1]))
 
 
 def request(freq, refs):

@@ -13,7 +13,8 @@ lcd = CharLCD("PCF8574", 0x3f)
 
 
 all_states = {
-    states.KEY_IAS_HDG: states.SpeedHeadingState(lcd)
+    states.KEY_IAS_HDG: states.SpeedHeadingState(lcd),
+    states.KEY_ALTITUDE: states.AltitudeState(lcd),
 }
 current_state_key = states.KEY_IAS_HDG
 
@@ -91,6 +92,7 @@ def delegate_input(source, value=None):
     new_state = current_state().input(source, value)
     if new_state in all_states:
         current_state_key = new_state
+        current_state().init_display()
 
 
 def button_pressed(button):

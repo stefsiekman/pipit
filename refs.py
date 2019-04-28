@@ -8,10 +8,22 @@ CMD_AIRSPEED_DOWN = "sim/autopilot/airspeed_down"
 REF_HEADING = "laminar/B738/autopilot/mcp_hdg_dial"
 CMD_HEADING_UP = "sim/autopilot/heading_up"
 CMD_HEADING_DOWN = "sim/autopilot/heading_down"
+
+REF_ALTITUDE = "laminar/B738/autopilot/mcp_alt_dial"
+CMD_ALTITUDE_UP = "sim/autopilot/altitude_up"
+CMD_ALTITUDE_DOWN = "sim/autopilot/altitude_down"
+REF_VERTICAL_SPEED = "sim/cockpit2/autopilot/vvi_dial_fpm"
+CMD_VERTICAL_SPEED_UP = "sim/autopilot/vertical_speed_up"
+CMD_VERTICAL_SPEED_DOWN = "sim/autopilot/vertical_speed_down"
+
+REF_STATUS_ALT_HLD = "laminar/B738/autopilot/alt_hld_status"
+REF_STATUS_VS = "laminar/B738/autopilot/vs_status"
+
 REF_STATUS_LNAV = "laminar/B738/autopilot/lnav_status"
-CMD_PRESS_LNAV = "laminar/B738/autopilot/lnav_press"
 REF_STATUS_VNAV = "laminar/B738/autopilot/vnav_status"
+CMD_PRESS_LNAV = "laminar/B738/autopilot/lnav_press"
 CMD_PRESS_VNAV = "laminar/B738/autopilot/vnav_press"
+
 REF_STATUS_HDG_SEL = "laminar/B738/autopilot/hdg_sel_status"
 CMD_PRESS_HDG_SEL = "laminar/B738/autopilot/hdg_sel_press"
 

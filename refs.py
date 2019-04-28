@@ -4,6 +4,8 @@ import threading
 import struct
 
 REF_AIRSPEED = "sim/cockpit2/autopilot/airspeed_dial_kts_mach"
+REF_DIGIT_8 = "laminar/B738/mcp/digit_8"
+REF_DIGIT_A = "laminar/B738/mcp/digit_A"
 CMD_AIRSPEED_UP = "sim/autopilot/airspeed_up"
 CMD_AIRSPEED_DOWN = "sim/autopilot/airspeed_down"
 REF_HEADING = "laminar/B738/autopilot/mcp_hdg_dial"
@@ -80,7 +82,7 @@ def send_command(cmd, fast_repeat=False):
 
     now = time.time()
     should_repeat = fast_repeat and last_command == cmd and \
-                    now - last_command_time < 0.100
+                    now - last_command_time < 0.050
     last_command_time = now
     last_command = cmd
 

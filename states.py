@@ -51,10 +51,19 @@ class SpeedHeadingState(ScreenState):
     def ref_changed(self, ref, new_val):
         if ref == refs.REF_AIRSPEED:
             self.lcd.cursor_pos = 0, 0
-            self.lcd.write_string(f"{int(new_val or 0):03d}")
+            speed_string = f" {int(new_val or 0):03d}"
+            if new_val is not None and new_val < 1:
+                speed_string = f"{new_val:.2f} "[1:]
+            self.lcd.write_string(speed_string)
         elif ref == refs.REF_HEADING:
-            self.lcd.cursor_pos = 1, 0
+            self.lcd.cursor_pos = 1, 1
             self.lcd.write_string(f"{int(new_val or 0):03d}")
+        elif ref == refs.REF_DIGIT_8:
+            self.lcd.cursor_pos = 0, 0
+            self.lcd.write_string("8" if new_val else " ")
+        elif ref == refs.REF_DIGIT_A:
+            self.lcd.cursor_pos = 0, 0
+            self.lcd.write_string("A" if new_val else " ")
         elif ref in self.led_map:
             GPIO.output(self.led_map[ref], bool(new_val))
 

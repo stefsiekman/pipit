@@ -19,6 +19,22 @@ REF_VERTICAL_SPEED = "sim/cockpit2/autopilot/vvi_dial_fpm"
 CMD_VERTICAL_SPEED_UP = "sim/autopilot/vertical_speed_up"
 CMD_VERTICAL_SPEED_DOWN = "sim/autopilot/vertical_speed_down"
 
+REF_NAV_ACT = "sim/cockpit/radios/nav1_freq_hz"
+REF_NAV_STDBY = "sim/cockpit/radios/nav1_stdby_freq_hz"
+CMD_NAV_FLIP = "sim/radios/nav1_standy_flip"
+CMD_NAV_COARSE_UP = "sim/radios/stby_nav1_coarse_up"
+CMD_NAV_COARSE_DOWN = "sim/radios/stby_nav1_coarse_down"
+CMD_NAV_FINE_UP = "sim/radios/stby_nav1_fine_up"
+CMD_NAV_FINE_DOWN = "sim/radios/stby_nav1_fine_down"
+
+REF_COM_ACT = "sim/cockpit/radios/com1_freq_hz"
+REF_COM_STDBY = "sim/cockpit/radios/com1_stdby_freq_hz"
+CMD_COM_FLIP = "sim/radios/com1_standy_flip"
+CMD_COM_COARSE_UP = "sim/radios/stby_com1_coarse_up"
+CMD_COM_COARSE_DOWN = "sim/radios/stby_com1_coarse_down"
+CMD_COM_FINE_UP = "sim/radios/stby_com1_fine_up"
+CMD_COM_FINE_DOWN = "sim/radios/stby_com1_fine_down"
+
 REF_STATUS_ALT_HLD = "laminar/B738/autopilot/alt_hld_status"
 REF_STATUS_VS = "laminar/B738/autopilot/vs_status"
 

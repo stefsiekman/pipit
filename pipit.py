@@ -15,6 +15,8 @@ lcd = CharLCD("PCF8574", 0x3f)
 all_states = {
     states.KEY_IAS_HDG: states.SpeedHeadingState(lcd),
     states.KEY_ALTITUDE: states.AltitudeState(lcd),
+    states.KEY_COM: states.ComState(lcd),
+    states.KEY_NAV: states.NavState(lcd),
 }
 current_state_key = states.KEY_IAS_HDG
 
@@ -114,7 +116,8 @@ if __name__ == "__main__":
     connect_xplane()
     setup_refs()
 
-    input("Press enter to quit\n")
+    # Run for 1 year
+    time.sleep(365 * 24 * 60 * 60)
     refs.stop_connection()
     lcd.clear()
     buttons.clear()

@@ -6,6 +6,8 @@ import refs
 
 KEY_IAS_HDG = "ias-hdg"
 KEY_ALTITUDE = "alt"
+KEY_COM = "com"
+KEY_NAV = "nav"
 
 
 class ScreenState(abc.ABC):
@@ -78,6 +80,8 @@ class SpeedHeadingState(ScreenState):
             refs.send_command(self.button_map[source])
         elif source == "Y":
             return KEY_ALTITUDE
+        elif source == "W":
+            return KEY_COM
         else:
             super(SpeedHeadingState, self).input(source, val)
 
@@ -92,7 +96,7 @@ class AltitudeState(ScreenState):
 
     def __init__(self, lcd):
         self.lcd = lcd
-        
+
     def init_display(self):
         self.lcd.clear()
         self.lcd.cursor_pos = 0, 6
@@ -129,7 +133,109 @@ class AltitudeState(ScreenState):
             refs.send_command(self.button_map[source])
         elif source == "X":
             return KEY_IAS_HDG
+        elif source == "W":
+            return KEY_COM
         else:
             super(AltitudeState, self).input(source, val)
+
+
+class ComState(ScreenState):
+
+    button_map = {
+        "H": refs.CMD_COM_FLIP
+    }
+
+    led_map = {
+    }
+
+    def __init__(self, lcd):
+        self.lcd = lcd
+
+    def init_display(self):
+        self.lcd.cursor_pos = 0, 7
+        self.lcd.write_string(" COM ACT")
+        self.lcd.cursor_pos = 1, 7
+        self.lcd.write_string(" COM STBY")
+
+        for ref in [refs.REF_COM_ACT, refs.REF_COM_STDBY]:
+            self.ref_changed(ref, refs.current_value(ref))
+
+    def ref_changed(self, ref, new_val):
+        if ref == refs.REF_COM_ACT:
+            self.lcd.cursor_pos = 0, 0
+            self.lcd.write_string(f"{new_val/100:3.3f}")
+        if ref == refs.REF_COM_STDBY:
+            self.lcd.cursor_pos = 1, 0
+            self.lcd.write_string(f"{new_val/100:3.3f}")
+        elif ref in self.led_map:
+            GPIO.output(self.led_map[ref], bool(new_val))
+
+    def input(self, source, val=None):
+        if source == "LR":
+            refs.send_command(refs.CMD_COM_COARSE_UP if val > 0 else
+                              refs.CMD_COM_COARSE_DOWN)
+        elif source == "RR":
+            refs.send_command(refs.CMD_COM_FINE_UP if val > 0 else
+                              refs.CMD_COM_FINE_DOWN)
+        elif source in self.button_map:
+            refs.send_command(self.button_map[source])
+        elif source == "X":
+            return KEY_IAS_HDG
+        elif source == "y":
+            return KEY_ALTITUDE
+        elif source == "W":
+            return KEY_NAV
+        else:
+            super(ComState, self).input(source, val)
+
+
+class NavState(ScreenState):
+
+    button_map = {
+        "H": refs.CMD_NAV_FLIP
+    }
+
+    led_map = {
+    }
+
+    def __init__(self, lcd):
+        self.lcd = lcd
+        
+    def init_display(self):
+        self.lcd.cursor_pos = 0, 7
+        self.lcd.write_string(" NAV ACT")
+        self.lcd.cursor_pos = 1, 7
+        self.lcd.write_string(" NAV STBY")
+
+        for ref in [refs.REF_NAV_ACT, refs.REF_NAV_STDBY]:
+            self.ref_changed(ref, refs.current_value(ref))
+
+    def ref_changed(self, ref, new_val):
+        if ref == refs.REF_NAV_ACT:
+            self.lcd.cursor_pos = 0, 0
+            self.lcd.write_string(f"{new_val/100:3.2f}")
+        if ref == refs.REF_NAV_STDBY:
+            self.lcd.cursor_pos = 1, 0
+            self.lcd.write_string(f"{new_val/100:3.2f}")
+        elif ref in self.led_map:
+            GPIO.output(self.led_map[ref], bool(new_val))
+
+    def input(self, source, val=None):
+        if source == "LR":
+            refs.send_command(refs.CMD_NAV_COARSE_UP if val > 0 else
+                              refs.CMD_NAV_COARSE_DOWN)
+        elif source == "RR":
+            refs.send_command(refs.CMD_NAV_FINE_UP if val > 0 else
+                              refs.CMD_NAV_FINE_DOWN)
+        elif source in self.button_map:
+            refs.send_command(self.button_map[source])
+        elif source == "X":
+            return KEY_IAS_HDG
+        elif source == "y":
+            return KEY_ALTITUDE
+        elif source == "W":
+            return KEY_COM
+        else:
+            super(NavState, self).input(source, val)
 
 

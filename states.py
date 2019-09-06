@@ -251,45 +251,71 @@ class ComState(ScreenState):
 
 
 class NavState(ScreenState):
-
-    button_map = {
-        "H": refs.CMD_NAV_FLIP
+    
+    NAV_REFS = {
+        1: {
+            "act": refs.REF_NAV1_ACT,
+            "stdby": refs.REF_NAV1_STDBY,
+            "coarse_up": refs.CMD_NAV1_COARSE_UP,
+            "coarse_down": refs.CMD_NAV1_COARSE_DOWN,
+            "fine_up": refs.CMD_NAV1_FINE_UP,
+            "fine_down": refs.CMD_NAV1_FINE_DOWN,
+            "flip": refs.CMD_NAV1_FLIP,
+        },
+        2: {
+            "act": refs.REF_NAV2_ACT,
+            "stdby": refs.REF_NAV2_STDBY,
+            "coarse_up": refs.CMD_NAV2_COARSE_UP,
+            "coarse_down": refs.CMD_NAV2_COARSE_DOWN,
+            "fine_up": refs.CMD_NAV2_FINE_UP,
+            "fine_down": refs.CMD_NAV2_FINE_DOWN,
+            "flip": refs.CMD_NAV2_FLIP,
+        },
     }
 
-    led_map = {
-    }
+    current_side = 1
 
     def __init__(self, lcd):
         self.lcd = lcd
         
     def init_display(self):
         self.lcd.cursor_pos = 0, 7
-        self.lcd.write_string(" NAV ACT")
+        self.lcd.write_string(f" NAV{self.current_side}ACT")
         self.lcd.cursor_pos = 1, 7
-        self.lcd.write_string(" NAV STBY")
+        self.lcd.write_string(f" NAV{self.current_side}STBY")
+        
+        # G & H leds are too broken to be used :(
+        # GPIO.output(buttons.leds["H"], bool(self.current_side - 1))
 
-        for ref in [refs.REF_NAV_ACT, refs.REF_NAV_STDBY]:
+        for ref in [self.ref("act"), self.ref("stdby")]:
             self.ref_changed(ref, refs.current_value(ref))
+            
+    def ref(self, ref):
+        return self.NAV_REFS[self.current_side][ref]
+            
+    def change_side(self):
+        self.current_side = (self.current_side % 2) + 1
+        self.init_display()
 
     def ref_changed(self, ref, new_val):
-        if ref == refs.REF_NAV_ACT:
+        if ref == self.ref("act"):
             self.lcd.cursor_pos = 0, 0
             self.lcd.write_string(f"{new_val/100:3.2f}")
-        if ref == refs.REF_NAV_STDBY:
+        if ref == self.ref("stdby"):
             self.lcd.cursor_pos = 1, 0
             self.lcd.write_string(f"{new_val/100:3.2f}")
-        elif ref in self.led_map:
-            GPIO.output(self.led_map[ref], bool(new_val))
 
     def input(self, source, val=None):
         if source == "LR":
-            refs.send_command(refs.CMD_NAV_COARSE_UP if val > 0 else
-                              refs.CMD_NAV_COARSE_DOWN)
+            refs.send_command(self.ref("coarse_up") if val > 0 else
+                              self.ref("coarse_down"))
         elif source == "RR":
-            refs.send_command(refs.CMD_NAV_FINE_UP if val > 0 else
-                              refs.CMD_NAV_FINE_DOWN)
-        elif source in self.button_map:
-            refs.send_command(self.button_map[source])
+            refs.send_command(self.ref("fine_up") if val > 0 else
+                              self.ref("fine_down"))
+        elif source == "G":
+            refs.send_command(self.ref("flip"))
+        elif source == "H":
+            self.change_side()
         elif source == "W":
             return KEY_COM
         else:

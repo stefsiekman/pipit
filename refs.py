@@ -19,6 +19,13 @@ REF_VERTICAL_SPEED = "sim/cockpit2/autopilot/vvi_dial_fpm"
 CMD_VERTICAL_SPEED_UP = "sim/autopilot/vertical_speed_up"
 CMD_VERTICAL_SPEED_DOWN = "sim/autopilot/vertical_speed_down"
 
+REF_COURSE_CPT = "sim/cockpit2/radios/actuators/nav1_obs_deg_mag_pilot"
+CMD_COURSE_CPT_UP = "laminar/B738/autopilot/course_pilot_up"
+CMD_COURSE_CPT_DOWN = "laminar/B738/autopilot/course_pilot_dn"
+REF_COURSE_FO = "sim/cockpit2/radios/actuators/nav1_obs_deg_mag_copilot"
+CMD_COURSE_FO_UP = "laminar/B738/autopilot/course_copilot_up"
+CMD_COURSE_FO_DOWN = "laminar/B738/autopilot/course_copilot_dn"
+
 REF_NAV_ACT = "sim/cockpit/radios/nav1_freq_hz"
 REF_NAV_STDBY = "sim/cockpit/radios/nav1_stdby_freq_hz"
 CMD_NAV_FLIP = "sim/radios/nav1_standy_flip"
@@ -62,6 +69,11 @@ def setup_installation(beacon_info):
     beacon = beacon_info
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     running = True
+
+
+def installation_is_setup():
+    global beacon
+    return beacon is not None
 
 
 def start_thread():

@@ -17,6 +17,7 @@ all_states = {
     states.KEY_ALTITUDE: states.AltitudeState(lcd),
     states.KEY_COM: states.ComState(lcd),
     states.KEY_NAV: states.NavState(lcd),
+    states.KEY_COURSE: states.CourseState(lcd),
 }
 current_state_key = states.KEY_IAS_HDG
 
@@ -58,9 +59,7 @@ def connect_xplane():
         lcd.cursor_pos = 1, 5
         lcd.write_string("Failed")
         time.sleep(1)
-        GPIO.cleanup()
-        lcd.clear()
-        exit(1)
+        return
     else:
         lcd.cursor_pos = 1, 7
         lcd.write_string("OK")
@@ -105,6 +104,10 @@ def rotary_turned(encoder, direction):
     delegate_input("LR" if encoder == 0 else "RR", direction)
 
 
+def has_xplane_connection():
+    return refs.installation_is_setup()
+
+
 if __name__ == "__main__":
     print("Welcome to PiPit")
 
@@ -113,7 +116,13 @@ if __name__ == "__main__":
     rotary.setup(rotary_turned)
 
     display_welcome()
-    connect_xplane()
+
+    while True:
+        connect_xplane()
+
+        if has_xplane_connection():
+            break
+
     setup_refs()
 
     # Run for 1 year

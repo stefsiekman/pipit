@@ -6,11 +6,22 @@ import refs
 
 KEY_IAS_HDG = "ias-hdg"
 KEY_ALTITUDE = "alt"
+KEY_COURSE = "course"
 KEY_COM = "com"
 KEY_NAV = "nav"
 
 
 class ScreenState(abc.ABC):
+
+    all_button_map = {
+        "A": refs.CMD_PRESS_LNAV,
+        "B": refs.CMD_PRESS_VNAV,
+        "F": refs.CMD_PRESS_HDG_SEL,
+    }
+
+    all_led_map = {
+        refs.REF_STATUS_HDG_SEL: buttons.leds["F"]
+    }
 
     @abc.abstractmethod
     def init_display(self):
@@ -18,23 +29,31 @@ class ScreenState(abc.ABC):
 
     @abc.abstractmethod
     def input(self, source, val):
-        print(f"Unhandled input source: {source}")
+        if source in self.all_button_map:
+            refs.send_command(self.all_button_map[source])
+        elif source == "X":
+            return KEY_IAS_HDG
+        elif source == "Y":
+            return KEY_ALTITUDE
+        elif source == "Z":
+            return KEY_COURSE
+        elif source == "W":
+            return KEY_COM
+        else:
+            print(f"Unhandled input source: {source}")
 
     @abc.abstractmethod
     def ref_changed(self, ref, new_value):
-        pass
+        if ref in self.all_led_map:
+            GPIO.output(self.all_led_map[ref], bool(new_value))
 
 
 class SpeedHeadingState(ScreenState):
 
     button_map = {
-        "A": refs.CMD_PRESS_LNAV,
-        "B": refs.CMD_PRESS_VNAV,
-        "F": refs.CMD_PRESS_HDG_SEL,
     }
 
     led_map = {
-        refs.REF_STATUS_HDG_SEL: buttons.leds["F"]
     }
 
     def __init__(self, lcd):
@@ -68,6 +87,8 @@ class SpeedHeadingState(ScreenState):
             self.lcd.write_string("A" if new_val else " ")
         elif ref in self.led_map:
             GPIO.output(self.led_map[ref], bool(new_val))
+        else:
+            super(SpeedHeadingState, self).ref_changed(ref, new_val)
 
     def input(self, source, val=None):
         if source == "LR":
@@ -78,12 +99,55 @@ class SpeedHeadingState(ScreenState):
                               if val > 0 else refs.CMD_HEADING_DOWN, True)
         elif source in self.button_map:
             refs.send_command(self.button_map[source])
-        elif source == "Y":
-            return KEY_ALTITUDE
-        elif source == "W":
-            return KEY_COM
         else:
-            super(SpeedHeadingState, self).input(source, val)
+            return super(SpeedHeadingState, self).input(source, val)
+
+
+class CourseState(ScreenState):
+
+    button_map = {
+    }
+
+    led_map = {
+    }
+
+    def __init__(self, lcd):
+        self.lcd = lcd
+
+    def init_display(self):
+        self.lcd.clear()
+        self.lcd.cursor_pos = 0, 6
+        self.lcd.write_string("COURSE CPT")
+        self.lcd.cursor_pos = 1, 6
+        self.lcd.write_string("COURSE F/O")
+
+        for ref in [refs.REF_COURSE_CPT, refs.REF_COURSE_FO]:
+            self.ref_changed(ref, refs.current_value(ref))
+
+    def ref_changed(self, ref, new_val):
+        if ref == refs.REF_COURSE_CPT:
+            self.lcd.cursor_pos = 0, 0
+            self.lcd.write_string(f"{int(new_val):3d}")
+        elif ref == refs.REF_COURSE_FO:
+            self.lcd.cursor_pos = 1, 0
+            self.lcd.write_string(f"{int(new_val):3d}")
+        elif ref in self.led_map:
+            GPIO.output(self.led_map[ref], bool(new_val))
+        else:
+            super(CourseState, self).ref_changed(ref, new_val)
+
+    def input(self, source, val=None):
+        if source == "LR":
+            refs.send_command(refs.CMD_COURSE_CPT_UP if val > 0 else
+                              refs.CMD_COURSE_CPT_DOWN, True)
+        elif source == "RR":
+            refs.send_command(
+                refs.CMD_COURSE_FO_UP if val > 0 else
+                refs.CMD_COURSE_FO_DOWN, True)
+        elif source in self.button_map:
+            refs.send_command(self.button_map[source])
+        else:
+            return super(CourseState, self).input(source, val)
 
 
 class AltitudeState(ScreenState):
@@ -120,6 +184,8 @@ class AltitudeState(ScreenState):
                 self.lcd.write_string("     ")
         elif ref in self.led_map:
             GPIO.output(self.led_map[ref], bool(new_val))
+        else:
+            super(AltitudeState, self).ref_changed(ref, new_val)
 
     def input(self, source, val=None):
         if source == "LR":
@@ -131,12 +197,8 @@ class AltitudeState(ScreenState):
                 refs.CMD_VERTICAL_SPEED_DOWN)
         elif source in self.button_map:
             refs.send_command(self.button_map[source])
-        elif source == "X":
-            return KEY_IAS_HDG
-        elif source == "W":
-            return KEY_COM
         else:
-            super(AltitudeState, self).input(source, val)
+            return super(AltitudeState, self).input(source, val)
 
 
 class ComState(ScreenState):
@@ -153,7 +215,7 @@ class ComState(ScreenState):
 
     def init_display(self):
         self.lcd.cursor_pos = 0, 7
-        self.lcd.write_string(" COM ACT")
+        self.lcd.write_string(" COM ACT ")
         self.lcd.cursor_pos = 1, 7
         self.lcd.write_string(" COM STBY")
 
@@ -179,14 +241,10 @@ class ComState(ScreenState):
                               refs.CMD_COM_FINE_DOWN)
         elif source in self.button_map:
             refs.send_command(self.button_map[source])
-        elif source == "X":
-            return KEY_IAS_HDG
-        elif source == "y":
-            return KEY_ALTITUDE
         elif source == "W":
             return KEY_NAV
         else:
-            super(ComState, self).input(source, val)
+            return super(ComState, self).input(source, val)
 
 
 class NavState(ScreenState):
@@ -229,13 +287,9 @@ class NavState(ScreenState):
                               refs.CMD_NAV_FINE_DOWN)
         elif source in self.button_map:
             refs.send_command(self.button_map[source])
-        elif source == "X":
-            return KEY_IAS_HDG
-        elif source == "y":
-            return KEY_ALTITUDE
         elif source == "W":
             return KEY_COM
         else:
-            super(NavState, self).input(source, val)
+            return super(NavState, self).input(source, val)
 
 

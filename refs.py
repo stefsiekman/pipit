@@ -49,8 +49,18 @@ CMD_COM_COARSE_DOWN = "sim/radios/stby_com1_coarse_down"
 CMD_COM_FINE_UP = "sim/radios/stby_com1_fine_up"
 CMD_COM_FINE_DOWN = "sim/radios/stby_com1_fine_down"
 
+REF_STATUS_AT = "laminar/B738/autopilot/autothrottle_status"
+CMD_PRESS_AT = "laminar/B738/autopilot/autothrottle_arm_toggle"
+REF_STATUS_LVL_CHG = "laminar/B738/autopilot/lvl_chg_status"
+CMD_PRESS_LVL_CHG = "laminar/B738/autopilot/lvl_chg_press"
+
 REF_STATUS_ALT_HLD = "laminar/B738/autopilot/alt_hld_status"
+CMD_PRESS_ALT_HLD = "laminar/B738/autopilot/alt_hld_press"
 REF_STATUS_VS = "laminar/B738/autopilot/vs_status"
+CMD_PRESS_VS = "laminar/B738/autopilot/vs_press"
+
+REF_STATUS_SPEED = "laminar/B738/autopilot/speed_status1"
+CMD_PRESS_SPEED = "laminar/B738/autopilot/speed_press"
 
 REF_STATUS_VNAV = "laminar/B738/autopilot/vnav_status1"
 REF_STATUS_LNAV = "laminar/B738/autopilot/lnav_status"
@@ -59,6 +69,16 @@ CMD_PRESS_VNAV = "laminar/B738/autopilot/vnav_press"
 
 REF_STATUS_HDG_SEL = "laminar/B738/autopilot/hdg_sel_status"
 CMD_PRESS_HDG_SEL = "laminar/B738/autopilot/hdg_sel_press"
+
+REF_STATUS_VOR_LOC = "laminar/B738/autopilot/vorloc_status"
+CMD_PRESS_VOR_LOC = "laminar/B738/autopilot/vorloc_press"
+REF_STATUS_APP = "laminar/B738/autopilot/app_status"
+CMD_PRESS_APP = "laminar/B738/autopilot/app_press"
+
+REF_STATUS_CMD_A = "laminar/B738/autopilot/cmd_a_status"
+REF_STATUS_CMD_B = "laminar/B738/autopilot/cmd_b_status"
+CMD_PRESS_CMD_A = "laminar/B738/autopilot/cmd_a_press"
+CMD_PRESS_CMD_B = "laminar/B738/autopilot/cmd_b_press"
 
 sock = None
 registered_refs = {}

@@ -14,20 +14,21 @@ KEY_NAV = "nav"
 class ScreenState(abc.ABC):
 
     all_button_map = {
-        "A": refs.CMD_PRESS_VNAV,
-        "B": refs.CMD_PRESS_LNAV,
-        "F": refs.CMD_PRESS_HDG_SEL,
+        "C": refs.CMD_PRESS_CMD_A,
+        "D": refs.CMD_PRESS_CMD_B,
     }
 
     all_led_map = {
-        refs.REF_STATUS_VNAV: buttons.leds["A"],
-        refs.REF_STATUS_LNAV: buttons.leds["B"],
-        refs.REF_STATUS_HDG_SEL: buttons.leds["F"],
+        refs.REF_STATUS_CMD_A: buttons.leds["C"],
+        refs.REF_STATUS_CMD_B: buttons.leds["D"],
     }
 
     @abc.abstractmethod
     def init_display(self):
-        pass
+        GPIO.output(buttons.leds["A"], False)
+        GPIO.output(buttons.leds["B"], False)
+        GPIO.output(buttons.leds["E"], False)
+        GPIO.output(buttons.leds["F"], False)
 
     @abc.abstractmethod
     def input(self, source, val):
@@ -54,9 +55,17 @@ class ScreenState(abc.ABC):
 class SpeedHeadingState(ScreenState):
 
     button_map = {
+        "A": refs.CMD_PRESS_VNAV,
+        "B": refs.CMD_PRESS_LNAV,
+        "E": refs.CMD_PRESS_SPEED,
+        "F": refs.CMD_PRESS_HDG_SEL,
     }
 
     led_map = {
+        refs.REF_STATUS_VNAV: buttons.leds["A"],
+        refs.REF_STATUS_LNAV: buttons.leds["B"],
+        refs.REF_STATUS_SPEED: buttons.leds["E"],
+        refs.REF_STATUS_HDG_SEL: buttons.leds["F"],
     }
 
     def __init__(self, lcd):
@@ -68,8 +77,10 @@ class SpeedHeadingState(ScreenState):
         self.lcd.write_string("IAS / MACH")
         self.lcd.cursor_pos = 1, 6
         self.lcd.write_string("HEADING")
+        
+        super(SpeedHeadingState, self).init_display()
 
-        for ref in [refs.REF_AIRSPEED, refs.REF_HEADING]:
+        for ref in [refs.REF_AIRSPEED, refs.REF_HEADING] + list(self.led_map.keys()):
             self.ref_changed(ref, refs.current_value(ref))
 
     def ref_changed(self, ref, new_val):
@@ -109,9 +120,13 @@ class SpeedHeadingState(ScreenState):
 class CourseState(ScreenState):
 
     button_map = {
+        "A": refs.CMD_PRESS_VOR_LOC,
+        "B": refs.CMD_PRESS_APP,
     }
 
     led_map = {
+        refs.REF_STATUS_VOR_LOC: buttons.leds["A"],
+        refs.REF_STATUS_APP: buttons.leds["B"],
     }
 
     def __init__(self, lcd):
@@ -123,8 +138,10 @@ class CourseState(ScreenState):
         self.lcd.write_string("COURSE CPT")
         self.lcd.cursor_pos = 1, 6
         self.lcd.write_string("COURSE F/O")
+        
+        super(CourseState, self).init_display()
 
-        for ref in [refs.REF_COURSE_CPT, refs.REF_COURSE_FO]:
+        for ref in [refs.REF_COURSE_CPT, refs.REF_COURSE_FO] + list(self.led_map.keys()):
             self.ref_changed(ref, refs.current_value(ref))
 
     def ref_changed(self, ref, new_val):
@@ -156,9 +173,17 @@ class CourseState(ScreenState):
 class AltitudeState(ScreenState):
 
     button_map = {
+        "A": refs.CMD_PRESS_AT,
+        "B": refs.CMD_PRESS_ALT_HLD,
+        "E": refs.CMD_PRESS_LVL_CHG,
+        "F": refs.CMD_PRESS_VS,
     }
 
     led_map = {
+        refs.REF_STATUS_AT: buttons.leds["A"],
+        refs.REF_STATUS_ALT_HLD: buttons.leds["B"],
+        refs.REF_STATUS_LVL_CHG: buttons.leds["E"],
+        refs.REF_STATUS_VS: buttons.leds["F"],
     }
 
     def __init__(self, lcd):
@@ -170,8 +195,10 @@ class AltitudeState(ScreenState):
         self.lcd.write_string("ALTITUDE")
         self.lcd.cursor_pos = 1, 6
         self.lcd.write_string("VERT SPEED")
+        
+        super(AltitudeState, self).init_display()
 
-        for ref in [refs.REF_ALTITUDE, refs.REF_VERTICAL_SPEED]:
+        for ref in [refs.REF_ALTITUDE, refs.REF_VERTICAL_SPEED] + list(self.led_map.keys()):
             self.ref_changed(ref, refs.current_value(ref))
 
     def ref_changed(self, ref, new_val):
@@ -221,6 +248,8 @@ class ComState(ScreenState):
         self.lcd.write_string(" COM ACT ")
         self.lcd.cursor_pos = 1, 7
         self.lcd.write_string(" COM STBY")
+        
+        super(ComState, self).init_display()
 
         for ref in [refs.REF_COM_ACT, refs.REF_COM_STDBY]:
             self.ref_changed(ref, refs.current_value(ref))
@@ -283,6 +312,8 @@ class NavState(ScreenState):
         self.lcd.write_string(f" NAV{self.current_side}ACT")
         self.lcd.cursor_pos = 1, 7
         self.lcd.write_string(f" NAV{self.current_side}STBY")
+        
+        super(NavState, self).init_display()
         
         # G & H leds are too broken to be used :(
         # GPIO.output(buttons.leds["H"], bool(self.current_side - 1))

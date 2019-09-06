@@ -45,8 +45,8 @@ CMD_COM_FINE_DOWN = "sim/radios/stby_com1_fine_down"
 REF_STATUS_ALT_HLD = "laminar/B738/autopilot/alt_hld_status"
 REF_STATUS_VS = "laminar/B738/autopilot/vs_status"
 
+REF_STATUS_VNAV = "laminar/B738/autopilot/vnav_status1"
 REF_STATUS_LNAV = "laminar/B738/autopilot/lnav_status"
-REF_STATUS_VNAV = "laminar/B738/autopilot/vnav_status"
 CMD_PRESS_LNAV = "laminar/B738/autopilot/lnav_press"
 CMD_PRESS_VNAV = "laminar/B738/autopilot/vnav_press"
 
@@ -85,6 +85,8 @@ def start_thread():
 
 def stop_connection():
     global running, registered_refs, thread
+
+    print("Stopping connection...")
 
     running = False
 

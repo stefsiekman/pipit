@@ -28,6 +28,8 @@ last_state = [
 def pin_changed(channel):
     global last_state
 
+#    print("Pin changed (rotary)")
+
     if handler is None:
         return
 

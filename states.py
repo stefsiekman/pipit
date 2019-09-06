@@ -14,13 +14,15 @@ KEY_NAV = "nav"
 class ScreenState(abc.ABC):
 
     all_button_map = {
-        "A": refs.CMD_PRESS_LNAV,
-        "B": refs.CMD_PRESS_VNAV,
+        "A": refs.CMD_PRESS_VNAV,
+        "B": refs.CMD_PRESS_LNAV,
         "F": refs.CMD_PRESS_HDG_SEL,
     }
 
     all_led_map = {
-        refs.REF_STATUS_HDG_SEL: buttons.leds["F"]
+        refs.REF_STATUS_VNAV: buttons.leds["A"],
+        refs.REF_STATUS_LNAV: buttons.leds["B"],
+        refs.REF_STATUS_HDG_SEL: buttons.leds["F"],
     }
 
     @abc.abstractmethod
@@ -45,6 +47,7 @@ class ScreenState(abc.ABC):
     @abc.abstractmethod
     def ref_changed(self, ref, new_value):
         if ref in self.all_led_map:
+            print(f"Changing ref {ref} on {self.all_led_map[ref]} to {bool(new_value)}")
             GPIO.output(self.all_led_map[ref], bool(new_value))
 
 

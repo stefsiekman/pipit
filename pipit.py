@@ -39,7 +39,7 @@ def display_welcome():
     lcd.cursor_pos = 0, 0
     lcd.write_string("Testing LEDs...")
 
-    # buttons.flash()
+    buttons.flash()
 
     lcd.clear()
 

@@ -5,7 +5,7 @@ import tempfile
 import json
 import zipfile
 import shutil
-
+from RPLCD.i2c import CharLCD
 
 LATEST_RELEASE_URL = \
     "https://api.github.com/repos/stefsiekman/pipit/releases/latest"
@@ -15,13 +15,20 @@ INFO_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 KEY_ACTIVE_TEMP_DIR = "active_temp_dir"
 KEY_INSTALLED = "installed"
 
+lcd = CharLCD("PCF8574", 0x3f)
+
 
 def log(msg):
     print(f"AutoUpdater: {msg}")
+    lcd.cursor_pos = 1, 0
+    lcd.write_string(msg)
+
+    if len(msg) < 16:
+        lcd.write_string(" " * (len(msg) - 16))
 
 
 def latest_release_info():
-    log("Downloading release info...")
+    log("DL release info")
     response = requests.get(LATEST_RELEASE_URL)
 
     if response is None:
@@ -62,11 +69,11 @@ def update_required_zip():
         log("Latest release info could not be downloaded")
         return
 
-    log(f"Latest release: {latest_release[0]}")
+    log(f"Latest: {latest_release[0]}")
 
     if version_info and KEY_INSTALLED in version_info:
         installed_version = version_info[KEY_INSTALLED]
-        log(f"Current version is {installed_version}")
+        log(f"Current {installed_version}")
 
         if installed_version == latest_release[0]:
             log("Already on latest version")
@@ -129,10 +136,10 @@ def download_update():
         log("No update will be installed")
         return
 
-    log(f"Updating to new release {release_version}...")
+    log(f"Updating {release_version}...")
 
     temp_dir, code_dir = download_zip(release_zip)
-    log(f"Downloaded to {code_dir}")
+    log(f"Downloaded")
     return temp_dir, code_dir, release_version
 
 
@@ -142,6 +149,11 @@ def move_download(from_path, to_path):
 
 
 def install_update():
+    # Welcome screen
+    lcd.clear()
+    lcd.cursor_pos = 0, 0
+    lcd.write_string("PiPit: Update...")
+
     # Install update
     downloaded_info = download_update()
     if not downloaded_info:
@@ -158,10 +170,8 @@ def install_update():
 
     # Update installed version
     update_version_info_key(KEY_INSTALLED, new_version)
-    log(f"Updated to {new_version}")
+    log(f"Updated: {new_version}")
 
 
 if __name__ == "__main__":
     install_update()
-
-

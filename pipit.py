@@ -48,6 +48,7 @@ def connect_xplane():
     lcd.clear()
     lcd.cursor_pos = 0, 0
     lcd.write_string("Trying to find\n\rX-Plane...")
+    print("Trying to connect to X-Plane")
 
     beacon_info = beacon.listen(5)
 
@@ -58,11 +59,13 @@ def connect_xplane():
     if beacon_info is None:
         lcd.cursor_pos = 1, 5
         lcd.write_string("Failed")
+        print("Failed")
         time.sleep(1)
         return
     else:
         lcd.cursor_pos = 1, 7
         lcd.write_string("OK")
+        print("OK")
 
     refs.setup_installation(beacon_info)
 
@@ -72,6 +75,7 @@ def connect_xplane():
     lcd.write_string("Hostname")
     lcd.cursor_pos = 1, 0
     lcd.write_string(beacon_info[2])
+    print(f"Hostname: {beacon_info[2]}")
     
     # time.sleep(2)
 

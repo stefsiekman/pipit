@@ -46,7 +46,7 @@ def setup(the_handler):
     global handler
 
     handler = the_handler
-    
+
     GPIO.setup(tuple(leds.values()), GPIO.OUT)
     GPIO.setup(tuple(buttons.values()), GPIO.IN, pull_up_down=GPIO.PUD_UP)
     for pin in buttons.values():
@@ -54,6 +54,11 @@ def setup(the_handler):
                               bouncetime=250)
 
     clear()
+
+
+def unregister():
+    for pin in buttons.values():
+        GPIO.remove_event_detect(pin)
 
 
 def flash():

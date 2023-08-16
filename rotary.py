@@ -1,7 +1,6 @@
 import RPi.GPIO as GPIO
 
-gray_codes = [(1,1), (1,0), (0,0), (0,1)]
-
+gray_codes = [(1, 1), (1, 0), (0, 0), (0, 1)]
 
 pins = (
     (17, 27),
@@ -28,7 +27,7 @@ last_state = [
 def pin_changed(channel):
     global last_state
 
-#    print("Pin changed (rotary)")
+    #    print("Pin changed (rotary)")
 
     if handler is None:
         return
@@ -55,5 +54,10 @@ def setup(the_handler):
         GPIO.setup(pin_set, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         for pin in pin_set:
             GPIO.add_event_detect(pin, GPIO.BOTH, callback=pin_changed,
-                                  bouncetime=2)
+                                  bouncetime=3)
 
+
+def unregister():
+    for pin_set in pins:
+        for pin in pin_set:
+            GPIO.remove_event_detect(pin)

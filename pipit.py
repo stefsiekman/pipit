@@ -8,9 +8,7 @@ import rotary
 import beacon
 import states
 
-
 lcd = CharLCD("PCF8574", 0x3f)
-
 
 all_states = {
     states.KEY_IAS_HDG: states.SpeedHeadingState(lcd),
@@ -76,7 +74,7 @@ def connect_xplane():
     lcd.cursor_pos = 1, 0
     lcd.write_string(beacon_info[2])
     print(f"Hostname: {beacon_info[2]}")
-    
+
     # time.sleep(2)
 
 
@@ -113,25 +111,38 @@ def has_xplane_connection():
 
 
 if __name__ == "__main__":
-    print("Welcome to PiPit")
-
-    GPIO.setmode(GPIO.BCM)
-    buttons.setup(button_pressed)
-    rotary.setup(rotary_turned)
-
-    display_welcome()
-
     while True:
-        connect_xplane()
+        print("Welcome to PiPit")
 
-        if has_xplane_connection():
-            break
+        GPIO.setmode(GPIO.BCM)
+        buttons.setup(button_pressed)
+        rotary.setup(rotary_turned)
 
-    setup_refs()
+        display_welcome()
 
-    # Run for 1 year
-    time.sleep(365 * 24 * 60 * 60)
-    refs.stop_connection()
-    lcd.clear()
-    buttons.clear()
+        while True:
+            connect_xplane()
+
+            if has_xplane_connection():
+                break
+
+        setup_refs()
+
+        resetting = 0
+        while True:
+            time.sleep(1)
+            if GPIO.input(buttons.buttons['A']):
+                resetting = 0
+            else:
+                resetting += 1
+                print(f"Resetting in {3 - resetting}")
+            if resetting >= 3:
+                break
+
+        refs.stop_connection()
+        lcd.clear()
+        buttons.clear()
+        buttons.unregister()
+        rotary.unregister()
+
     GPIO.cleanup()
